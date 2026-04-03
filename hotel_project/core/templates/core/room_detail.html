@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="room-detail-layout">
+    <div>
+        {% if room.image %}
+            <img src="{{ room.image.url }}" class="room-detail-img" alt="Фото">
+        {% else %}
+            <img src="/media/hotel/no_photo.jpg" class="room-detail-img">
+        {% endif %}
+
+        <h1 style="font-size: 3.5rem; margin-top: 2rem; color: var(--primary);">{{ room.category.name }}</h1>
+        <p style="text-transform: uppercase; letter-spacing: 2px; color: var(--gray); margin-bottom: 2rem;">Комната №{{ room.number }} · До {{ room.capacity }} гостей</p>
+
+        <div style="font-size: 1.1rem; line-height: 1.8; color: var(--dark);">
+            {{ room.description|linebreaks }}
+        </div>
+    </div>
+
+    <div class="booking-box">
+        <h2 style="font-size: 2rem; margin-bottom: 1rem; color: var(--primary);">Бронирование</h2>
+        <p style="font-size: 1.5rem; font-family: 'Cormorant Garamond', serif; margin-bottom: 2rem;">{{ room.price_per_night }} ₽ <span style="font-size: 1rem; font-family: 'Montserrat', sans-serif;">/ ночь</span></p>
+
+        <form method="post">
+            {% csrf_token %}
+            {% if form.errors %}<div style="color: red; margin-bottom: 1rem;">{{ form.non_field_errors }}</div>{% endif %}
+
+            <label>Дата заезда</label>
+            {{ form.check_in }}
+
+            <label>Дата выезда</label>
+            {{ form.check_out }}
+
+            <label>Количество гостей (макс. {{ room.capacity }})</label>
+            {{ form.guests }}
+
+            <input type="hidden" id="price-per-night" value="{{ room.price_per_night }}">
+
+            <div class="calculator-block" style="background: var(--bg-color); padding: 1.5rem; margin-top: 1.5rem; border-radius: 8px; border: 1px solid var(--border);">
+                <p style="margin-bottom: 0.5rem; color: var(--gray);">Количество ночей: <strong id="nights" style="color: var(--dark);">0</strong></p>
+                <p style="font-size: 1.2rem; margin-bottom: 0;">Итого к оплате: <strong id="total" style="color: var(--primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">0</strong> <span style="font-size: 1rem;">₽</span></p>
+            </div>
+
+            {% if user.is_authenticated %}
+                <button type="submit" class="btn-full" style="margin-top: 1rem;">Оформить бронь</button>
+            {% else %}
+                <div style="margin-top: 1rem; text-align: center; padding: 1rem; border: 1px solid #ccc; background: #fafafa;">
+                    <p style="margin-bottom: 10px; font-size: 0.9rem;">Для бронирования необходимо войти</p>
+                    <a href="{% url 'login' %}" class="btn-outline-dark" style="display: block; width: 100%;">Войти в аккаунт</a>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'core/js/booking.js' %}"></script>
+{% endblock %}
